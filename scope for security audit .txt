@@ -1,0 +1,71 @@
+https://github.com/succinctlabs/sp1/tree/main/crates/core/machine
+ https://github.com/succinctlabs/sp1/tree/main/crates/hypercube 
+https://github.com/succinctlabs/sp1/tree/main/crates/recursion 
+https://github.com/succinctlabs/sp1/tree/main/crates/zkvm/entrypoint
+https://github.com/succinctlabs/sp1/tree/main/crates/zkvm/lib
+https://github.com/succinctlabs/sp1/tree/main/slop/crates/
+https://github.com/succinctlabs/sp1/blob/main/crates/prover/src/verify.rs
+
+We prioritize soundness vulnerabilities affecting Groth16 and Plonk proof types.
+
+The severity of a soundness or completeness finding may change due to the impact and scope of the finding, i.e. which types of programs are affected, and what types of incorrect execution becomes provable or what types of correct execution becomes unprovable.
+
+
+Critical
+Soundness bug where a malicious prover can forge a false proof for all 4 proof types (core, compressed, Plonk, Groth16) for a general class of programs.
+
+High
+Soundness bug where a malicious prover can forge a false Compressed proof for a general class of programs.
+
+High
+Soundness bug where a malicious prover can forge a false Groth16 and a Plonk proof for a general class of programs.
+
+Medium
+Completeness bug affecting all proof types and a general class of programs.
+
+Medium
+Soundness bug that allows forging a false core proof but not compressed or SNARK proofs. 
+All reports must be valid on SP1's latest release commit, which can be found here. The findings must be reproduced with production circuits and verification keys, with default production security checks. Findings that require Cargo features or paths intended solely for experimental, mprotect, may_dump_elf, debug, profiling, dummy, testing, benchmarking, or in-development circuits are out of scope. Findings on the usage of proof_nonce are also considered out of scope. We are in the process of marking proof verification with non-zero exit_code as experimental, and therefore all findings relating to non-zero exit_code is considered out of scope. More precisely, the findings should use the compiler feature-set used to build the Docker images here; in particular, sp1-prover/experimental and sp1-prover/mprotect are off, sp1-prover/native-gnark is turned on, and they should demonstrate a completeness or soundness vulnerability in sp1_sdk::prover::Prover::verify. Proofs of concept should be able to run on an Apple M3 chip or similar hardware in ten minutes or less.
+
+The whir, veil, spartan, pgspcs crates within slop are out of scope. Findings that affect slop only as a standalone library and do not affect the in-scope proving and verification in SP1 are considered out of scope.
+
+A bug bounty submission for a completeness vulnerability should demonstrate an inherent and deterministic incorrectness inside an AIR constraint, recursive circuit, or production verifier that makes a valid execution unprovable, or makes its correctly generated proof unverifiable. Failures that are specific to a prover backend or prover implementation, hardware, insufficient resources, concurrency, timeouts, environment variables, or user configuration are out of scope.
+
+A bug bounty submission for a soundness vulnerability must include an end-to-end PoC demonstrating that the production verifier accepts a false claim about the program's execution, such as public outputs that cannot arise from any valid execution of the specified program consistent with the inputs bound by the verified statement.
+
+All reports must be valid under the SP1 security model
+
+https://docs.succinct.xyz/docs/sp1/security/security-model
+https://docs.succinct.xyz/docs/sp1/security/safe-precompile-usage
+This means that all eligible proofs of concept must use
+
+A memory-safe, non-malicious program.
+An ELF produced by the provided SP1 toolchain.
+Safe usage of precompiles and patched crates as explained in the documentation.
+Must not request a Core proof for an ELF that invokes the VERIFY_SP1_PROOF syscall.
+Also, the PoC program should be generated through memory-safe Rust program, compiled through the usual SP1 zkvm entrypoint and libraries. In general, for a submission to be valid, it needs to work on all "general class of programs". As such, findings should be applicable for all programs that use a certain opcode or syscall in normal usecases. In short, the PoC's should be done with guest programs that are more standard, such as the Fibonacci ELF or the RSP program.
+
+Only production soundness failures and protocol-level completeness failures as defined above are eligible for the bounty. Findings on DoS of prover and the verifier, as well as service availability, are considered out of scope.
+
+ 
+
+
+Blockchain/DLT specific
+
+Incorrect data supplied by third party oracles
+Not to exclude oracle manipulation/flash loan attacks
+Impacts requiring basic economic and governance attacks (e.g. 51% attack)
+Lack of liquidity impacts
+Impacts from Sybil attacks
+Impacts involving centralization risks
+All categories
+
+Impacts requiring attacks that the reporter has already exploited themselves, leading to damage
+Impacts caused by attacks requiring access to leaked keys/credentials
+Impacts caused by attacks requiring access to privileged addresses (including, but not limited to: governance and strategist contracts) without additional modifications to the privileges attributed
+Impacts relying on attacks involving the depegging of an external stablecoin where the attacker does not directly cause the depegging due to a bug in code
+Mentions of secrets, access tokens, API keys, private keys, etc. in Github will be considered out of scope without proof that they are in-use in production
+Best practice recommendations
+Feature requests
+Impacts on test files and configuration files unless stated otherwise in the bug bounty program
+Impacts requiring phishing or other social engineering attacks against project's employees and/or customers
